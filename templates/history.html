@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All History · LastRecommendations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101010;
+      --panel: #181818;
+      --panel2: #202020;
+      --text: #f4f4f4;
+      --muted: #aaa;
+      --accent: #d92323;
+      --good: #61c56e;
+      --warn: #e0a94f;
+      --border: #303030;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 60px; }
+    header {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    h1 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.6rem); }
+    .meta { color: var(--muted); font-size: .95rem; line-height: 1.55; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    a.button, button, select {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font: inherit;
+    }
+    a.button:hover, button:hover, select:hover { border-color: var(--accent); }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 18px 0 24px;
+    }
+    .pill {
+      display: inline-block;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: .9rem;
+    }
+    .page-size { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 110px;
+    }
+    .card.unresolved { border-color: #72572a; }
+    .image-link { display: block; color: inherit; text-decoration: none; }
+    .image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #242424;
+      display: block;
+    }
+    .image.placeholder {
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+      color: #777;
+    }
+    .body { padding: 12px; }
+    .name { font-weight: 700; margin-bottom: 8px; }
+    .name a { color: inherit; text-decoration: none; }
+    .name a:hover { text-decoration: underline; }
+    .mbid {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+    .mbid a { color: var(--good); text-decoration: none; }
+    .dates { margin-top: 9px; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+    .warn { color: var(--warn); }
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .page-label { color: var(--muted); padding: 0 6px; }
+    .disabled { opacity: .4; pointer-events: none; }
+    .empty { color: var(--muted); padding: 30px 0; }
+    @media (max-width: 760px) {
+      header { display: block; }
+      .actions { margin-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>All History</h1>
+      <div class="meta">
+        Every unique artist Last.fm has recommended since history tracking began.<br>
+        Newest first.
+      </div>
+    </div>
+    <div class="actions">
+      <a class="button" href="/">Current Recommendations</a>
+      <a class="button" href="/history.json">History JSON</a>
+      <a class="button" href="/lidarr.json">Lidarr JSON</a>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <span class="pill">{{ total }} total unique artists</span>
+    <form class="page-size" method="get" action="/history">
+      <label for="per_page">Artists per page</label>
+      <select id="per_page" name="per_page" onchange="this.form.submit()">
+        {% for option in per_page_options %}
+          <option value="{{ option }}" {{ 'selected' if option == per_page else '' }}>{{ option }}</option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="page" value="1">
+    </form>
+  </div>
+
+  {% if artists %}
+    <div class="grid">
+      {% for artist in artists %}
+        <div class="card {{ '' if artist.mbid else 'unresolved' }}">
+          <a class="image-link" href="{{ artist.url }}" target="_blank" rel="noreferrer">
+            {% if artist.image %}
+              <img class="image" src="{{ artist.image }}" alt="" loading="lazy">
+            {% else %}
+              <div class="image placeholder">♪</div>
+            {% endif %}
+          </a>
+          <div class="body">
+            <div class="name">
+              <a href="{{ artist.url }}" target="_blank" rel="noreferrer">{{ artist.name }}</a>
+            </div>
+            {% if artist.mbid %}
+              <div class="mbid">
+                <a href="https://musicbrainz.org/artist/{{ artist.mbid }}" target="_blank" rel="noreferrer">{{ artist.mbid }}</a>
+              </div>
+            {% else %}
+              <div class="mbid warn">No resolved MBID</div>
+            {% endif %}
+            <div class="dates">
+              First recommended: <span data-date="{{ artist.first_seen }}">{{ artist.first_seen or 'Unknown' }}</span><br>
+              Last recommended: <span data-date="{{ artist.last_seen }}">{{ artist.last_seen or 'Unknown' }}</span><br>
+              Seen in {{ artist.times_seen or 1 }} refresh{{ '' if (artist.times_seen or 1) == 1 else 'es' }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+      <a class="button {{ 'disabled' if page <= 1 else '' }}" href="/history?page={{ page - 1 }}&per_page={{ per_page }}">Previous</a>
+      <span class="page-label">Page {{ page }} of {{ total_pages }}</span>
+      <a class="button {{ 'disabled' if page >= total_pages else '' }}" href="/history?page={{ page + 1 }}&per_page={{ per_page }}">Next</a>
+    </div>
+  {% else %}
+    <div class="empty">No recommendation history has been recorded yet.</div>
+  {% endif %}
+</div>
+
+<script>
+  for (const el of document.querySelectorAll('[data-date]')) {
+    if (!el.dataset.date || el.dataset.date === 'None') continue;
+    const d = new Date(el.dataset.date);
+    if (!Number.isNaN(d.getTime())) el.textContent = d.toLocaleString();
+  }
+</script>
+</body>
+</html>

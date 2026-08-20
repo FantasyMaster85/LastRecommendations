@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LastRecommendations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101010;
+      --panel: #181818;
+      --panel2: #202020;
+      --text: #f4f4f4;
+      --muted: #aaa;
+      --accent: #d92323;
+      --good: #61c56e;
+      --warn: #e0a94f;
+      --bad: #ff7777;
+      --border: #303030;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    header {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.7rem, 4vw, 2.6rem);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.55;
+    }
+
+    .counts {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 18px 0 26px;
+    }
+
+    .pill {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: .9rem;
+    }
+
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    a.button, button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    a.button:hover, button:hover {
+      border-color: var(--accent);
+    }
+
+    .endpoint, .diagnostic {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+      color: #f0c7c7;
+    }
+
+    .error {
+      background: #341414;
+      border: 1px solid #7e2525;
+      padding: 14px;
+      border-radius: 8px;
+      margin: 16px 0 24px;
+      white-space: pre-wrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 110px;
+    }
+
+    .card.unresolved {
+      border-color: #72572a;
+    }
+
+    .image-link {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #242424;
+      display: block;
+    }
+
+    .body { padding: 12px; }
+
+    .name {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .name a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .name a:hover { text-decoration: underline; }
+
+    .mbid {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+
+    .mbid a {
+      color: var(--good);
+      text-decoration: none;
+    }
+
+    .method {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    .reason {
+      margin-top: 8px;
+      color: var(--warn);
+      font-size: .8rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 30px 0;
+    }
+
+    @media (max-width: 760px) {
+      header { display: block; }
+      .actions { margin-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>LastRecommendations</h1>
+      <div class="meta">
+        {% if last_success %}
+          Last successful refresh:
+          <span data-date="{{ last_success }}">{{ last_success }}</span><br>
+        {% endif %}
+        Refresh interval: every {{ refresh_hours }} hours
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="button" href="/history">All History</a>
+      <a class="button" href="/lidarr.json">Lidarr JSON</a>
+      <a class="button" href="/mbids.json">Bare MBIDs</a>
+      <a class="button" href="/details.json">Details JSON</a>
+      <a class="button" href="/musicbrainz-test?artist=Electric%20Guest">Test MusicBrainz</a>
+      <a class="button"
+         href="https://www.last.fm/home/artists"
+         target="_blank"
+         rel="noreferrer">Open Last.fm</a>
+      <button id="refresh">Refresh now</button>
+    </div>
+  </header>
+
+  <div class="counts">
+    <span class="pill">{{ artists|length }} current recommendations</span>
+    <span class="pill">{{ history_total }} all-time artists</span>
+    <span class="pill good">{{ resolved }} resolved MBIDs</span>
+    {% if unresolved %}
+      <span class="pill warn">{{ unresolved }} unresolved</span>
+    {% endif %}
+  </div>
+
+  <div class="endpoint">
+    <strong>Lidarr Custom List URL:</strong>
+    <code id="lidarr-url">/lidarr.json</code><br>
+    Only the actual recommendation-title artists are included; Last.fm's
+    <strong>Similar to</strong> links are deliberately ignored.
+  </div>
+
+  <div class="diagnostic">
+    <strong>MusicBrainz API:</strong>
+    {% if musicbrainz.last_error %}
+      <span class="bad">ERROR</span><br>
+      <code>{{ musicbrainz.last_error }}</code>
+    {% elif musicbrainz.last_ok %}
+      <span class="good">OK</span>
+      {% if musicbrainz.last_status %}(HTTP {{ musicbrainz.last_status }}){% endif %}<br>
+      Last successful API request:
+      <span data-date="{{ musicbrainz.last_ok }}">{{ musicbrainz.last_ok }}</span>
+    {% else %}
+      <span class="warn">not contacted yet</span>
+    {% endif %}
+  </div>
+
+  {% if last_error %}
+    <div class="error">
+      <strong>Last refresh error:</strong> {{ last_error }}
+    </div>
+  {% endif %}
+
+  {% if artists %}
+    <div class="grid">
+      {% for artist in artists %}
+        <div class="card {{ '' if artist.mbid else 'unresolved' }}">
+          {% if artist.image %}
+            <a class="image-link"
+               href="{{ artist.url }}"
+               target="_blank"
+               rel="noreferrer">
+              <img class="image"
+                   src="{{ artist.image }}"
+                   alt=""
+                   loading="lazy">
+            </a>
+          {% endif %}
+
+          <div class="body">
+            <div class="name">
+              <a href="{{ artist.url }}"
+                 target="_blank"
+                 rel="noreferrer">{{ artist.name }}</a>
+            </div>
+
+            {% if artist.mbid %}
+              <div class="mbid">
+                <a href="https://musicbrainz.org/artist/{{ artist.mbid }}"
+                   target="_blank"
+                   rel="noreferrer">{{ artist.mbid }}</a>
+              </div>
+              <span class="method">
+                matched via {{ artist.mbid_method }}
+              </span>
+            {% else %}
+              <div class="mbid warn">No safe MBID match</div>
+              {% if artist.mbid_error %}
+                <div class="reason">{{ artist.mbid_error }}</div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      No recommendations have been stored yet.
+      Check <code>docker compose logs -f</code> if the first refresh failed.
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  for (const el of document.querySelectorAll("[data-date]")) {
+    const d = new Date(el.dataset.date);
+    if (!Number.isNaN(d.getTime())) {
+      el.textContent = d.toLocaleString();
+    }
+  }
+
+  document.getElementById("lidarr-url").textContent =
+    `${location.origin}/lidarr.json`;
+
+  document.getElementById("refresh").addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    button.textContent = "Refreshing…";
+
+    try {
+      const response = await fetch("/refresh", {method: "POST"});
+      const body = await response.json();
+
+      if (!response.ok) {
+        throw new Error(body.message || "Refresh failed");
+      }
+
+      location.reload();
+    } catch (err) {
+      alert(err.message);
+      button.disabled = false;
+      button.textContent = "Refresh now";
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+services:
+  lastrecommendations:
+    image: ghcr.io/fantasymaster85/lastrecommendations:latest
+    container_name: lastrecommendations
+    restart: unless-stopped
+    init: true
+
+    environment:
+      TZ: America/New_York
+      PORT: "9654"
+      DATA_DIR: /app/data
+      REFRESH_HOURS: "25"
+
+      LASTFM_COOKIE: >-
+        csrftoken=PASTE_YOUR_COOKIE_HERE; sessionid=PASTE_YOUR_SESSION_COOKIE_HERE
+
+      LASTFM_USER_AGENT: >-
+        Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+        (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36
+
+      MUSICBRAINZ_USER_AGENT: >-
+        LastRecommendations/1.0 (https://github.com/FantasyMaster85/LastRecommendations)
+
+    volumes:
+      - ./data:/app/data
+
+    ports:
+      - "9654:9654"
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import os, urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '9654') + '/healthz', timeout=5)
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
