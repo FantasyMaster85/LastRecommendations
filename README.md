@@ -237,7 +237,7 @@ Confirm the host port is published, your firewall permits the connection, and a 
 Homepage:
 <img width="1379" height="1060" alt="Homepage - Current Recommendations" src="https://github.com/user-attachments/assets/1e1ffeda-ac25-4612-bb3e-06557f792374" />
 
-Lidarr JSON Output for use with "custom list" in the Lidarr Indexer setup:
+Lidarr JSON Output for use with "custom list" in the Lidarr "Import Lists" setup:
 <img width="453" height="533" alt="lidarr json output" src="https://github.com/user-attachments/assets/e338eae5-4a5e-441f-b549-8b0305d0594c" />
 
 All History page:
