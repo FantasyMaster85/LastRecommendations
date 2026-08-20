@@ -234,11 +234,15 @@ The scraper intentionally selects only Last.fm recommendation-title links and ig
 Confirm the host port is published, your firewall permits the connection, and a Dockerized Lidarr instance is not trying to use its own `localhost`.
 
 ## Screenshots
+Homepage:
+<img width="1379" height="1060" alt="Homepage - Current Recommendations" src="https://github.com/user-attachments/assets/1e1ffeda-ac25-4612-bb3e-06557f792374" />
 
-<!-- Add screenshots here, for example:
-![Dashboard](screenshots/dashboard.png)
-![All History](screenshots/history.png)
--->
+Lidarr JSON Output for use with "custom list" in the Lidarr Indexer setup:
+<img width="453" height="533" alt="lidarr json output" src="https://github.com/user-attachments/assets/e338eae5-4a5e-441f-b549-8b0305d0594c" />
+
+All History page:
+<img width="1333" height="1061" alt="all history page" src="https://github.com/user-attachments/assets/e9503171-1610-4b41-b53b-8f587b79d325" />
+
 
 ## License
 
