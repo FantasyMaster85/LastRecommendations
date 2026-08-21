@@ -6,6 +6,9 @@ It also keeps a permanent, browsable history of every unique artist Last.fm has 
 
 > This project is not affiliated with Last.fm, MusicBrainz, or Lidarr.
 
+## Demo
+<img width="1280" height="720" alt="ezgif-1ed8dfaf4134e61e" src="https://github.com/user-attachments/assets/fd9d15ea-a45c-4f40-bac9-9154d4f29d0b" />
+
 ## What it does
 
 On container startup, and then every configured refresh interval, LastRecommendations:
