@@ -238,13 +238,15 @@ Confirm the host port is published, your firewall permits the connection, and a 
 
 ## Screenshots
 Homepage:
-<img width="1379" height="1060" alt="Homepage - Current Recommendations" src="https://github.com/user-attachments/assets/1e1ffeda-ac25-4612-bb3e-06557f792374" />
+<img width="1149" height="1025" alt="1" src="https://github.com/user-attachments/assets/fe4a8eb0-55d6-4cd3-84ed-234af61806f9" />
+
 
 Lidarr JSON Output for use with "custom list" in the Lidarr "Import Lists" setup:
 <img width="453" height="533" alt="lidarr json output" src="https://github.com/user-attachments/assets/e338eae5-4a5e-441f-b549-8b0305d0594c" />
 
 All History page:
-<img width="1333" height="1061" alt="all history page" src="https://github.com/user-attachments/assets/e9503171-1610-4b41-b53b-8f587b79d325" />
+<img width="1165" height="1030" alt="2" src="https://github.com/user-attachments/assets/8b034ff7-e69d-4c71-9d44-12e7be92861a" />
+
 
 
 ## License
